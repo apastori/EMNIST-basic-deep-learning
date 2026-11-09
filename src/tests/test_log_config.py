@@ -1,4 +1,4 @@
-"""Tests for MNIST training log configuration."""
+"""Tests for EMNIST training log configuration."""
 
 import logging
 from pathlib import Path

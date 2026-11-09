@@ -1,4 +1,4 @@
-"""Tests for MNIST Data Loader class."""
+"""Tests for EMNIST Data Loader class."""
 
 import numpy as np
 import pytest
@@ -13,11 +13,11 @@ from mnistnn.mnist_data_loader import (
 
 
 class TestMNISTDataLoader:
-    """Test suite for MNISTDataLoader class."""
+    """Test suite for the EMNIST data loader class."""
 
     @pytest.fixture
     def data_loader(self) -> MNISTDataLoader:
-        """Initialize MNIST data loader with configuration."""
+        """Initialize EMNIST data loader with configuration."""
         loader: MNISTDataLoader = MNISTDataLoader(
             dict_config_train, dict_config_test
         )

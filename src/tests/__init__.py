@@ -1,4 +1,4 @@
-"""Define the test package for the MNIST project."""
+"""Define the test package for the EMNIST project."""
 
 import os
 

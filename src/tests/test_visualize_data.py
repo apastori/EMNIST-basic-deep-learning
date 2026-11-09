@@ -1,4 +1,4 @@
-"""Tests for MNIST Visualizer class."""
+"""Tests for EMNIST Visualizer class."""
 
 import numpy as np
 import pytest
@@ -13,11 +13,11 @@ from mnistnn.mnist_visualizer import MNISTVisualizer
 
 
 class TestMNISTVisualizer:
-    """Test suite for MNISTVisualizer class."""
+    """Test suite for the EMNIST visualizer class."""
 
     @pytest.fixture
     def data_loader(self) -> MNISTDataLoader:
-        """Initialize MNIST data loader with configuration."""
+        """Initialize EMNIST data loader with configuration."""
         loader: MNISTDataLoader = MNISTDataLoader(
             dict_config_train, dict_config_test
         )
@@ -52,7 +52,7 @@ class TestMNISTVisualizer:
     def test_plot_random_images_grid(
         self, training_data: tuple[np.ndarray, np.ndarray]
     ) -> None:
-        """Test that plotting a grid of 20 random MNIST images does not raise errors."""
+        """Test that plotting a grid of 20 random EMNIST images does not raise errors."""
         images_array: np.ndarray
         labels_array: np.ndarray
         images_array, labels_array = training_data
@@ -69,9 +69,9 @@ class TestMNISTVisualizer:
                 random_images,
                 random_labels,
                 num_images=20,
-                title="20 Random MNIST Samples",
+                title="20 Random EMNIST Samples",
             )
         except Exception as e:
             raise AssertionError(
-                f"Plotting 20 random MNIST images raised an exception: {e}"
+                f"Plotting 20 random EMNIST images raised an exception: {e}"
             ) from e

@@ -1,10 +1,10 @@
-"""Tests for MNIST Neural Network class."""
+"""Tests for EMNIST Neural Network class."""
 
 import pytest
 
 
 class TestMDISTNeuralNetwork:
-    """Test suite for MDIST Neural Network class."""
+    """Test suite for EMNIST Neural Network class."""
 
     def test_placeholder_not_implemented(self) -> None:
         """Placeholder test - Neural Network tests not yet implemented."""
