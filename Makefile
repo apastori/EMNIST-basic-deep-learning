@@ -18,7 +18,7 @@ help:
 	@echo "  make clean         - Remove cache directories and temporary files"
 	@echo "  make install       - Install development dependencies"
 	@echo "  make run-tests-init- - Run the test package __init__.py directly"
-	@echo "  make train         - Train the MNIST network"
+	@echo "  make train         - Train the EMNIST network"
 	@echo "  make help          - Show this help message"
 
 
@@ -81,8 +81,8 @@ run-tests-init:
 	@echo "✅ Run complete"
 
 
-# Train the MNIST network
+# Train the EMNIST network
 train:
-	@echo "▶ Training MNIST network..."
+	@echo "▶ Training EMNIST network..."
 	PYTHONPATH=src python -m mnistnn
 	@echo "✅ Training complete"
