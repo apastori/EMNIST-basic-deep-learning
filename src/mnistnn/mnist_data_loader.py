@@ -96,8 +96,8 @@ class MNISTDataLoader:
             labels = []
             for byte in raw_bytes:
                 labels.append(int(byte))
-            if any(label < 0 or label > 9 for label in labels):
-                raise ValueError("Labels must be digits between 0 and 9")
+            if any(label < 0 or label > 46 for label in labels):
+                raise ValueError("Labels must be class indices between 0 and 46")
             if len(labels) != num_labels:
                 raise ValueError("Label count does not match header")
         labels_dict: MNISTLabelsInfo = {

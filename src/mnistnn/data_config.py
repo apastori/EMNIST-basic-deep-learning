@@ -14,10 +14,10 @@ input_path = os.path.join(BASE_DIR, "..", "data")
 dict_config_train: dict[str, str] = {
     'input_path': input_path,
     'training_images_filepath': join(
-        input_path, 'train-images-idx3-ubyte/train-images-idx3-ubyte'
+        input_path, 'emnist-balanced-train-images-idx3-ubyte/emnist-balanced-train-images-idx3-ubyte'
     ),
     'training_labels_filepath': join(
-        input_path, 'train-labels-idx1-ubyte/train-labels-idx1-ubyte'
+        input_path, 'emnist-balanced-train-labels-idx1-ubyte/emnist-balanced-train-labels-idx1-ubyte'
     ),
 }
 
@@ -25,10 +25,10 @@ dict_config_train: dict[str, str] = {
 dict_config_test: dict[str, str] = {
     'input_path': input_path,
     'test_images_filepath': join(
-        input_path, 't10k-images-idx3-ubyte/t10k-images-idx3-ubyte'
+        input_path, 'emnist-balanced-test-images-idx3-ubyte/emnist-balanced-test-images-idx3-ubyte'
     ),
     'test_labels_filepath': join(
-        input_path, 't10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte'
+        input_path, 'emnist-balanced-test-labels-idx1-ubyte/emnist-balanced-test-labels-idx1-ubyte'
     ),
 }
 
