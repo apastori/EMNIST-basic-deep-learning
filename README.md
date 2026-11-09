@@ -1,6 +1,6 @@
-# Basic Deep Learning MNIST
+# Basic Deep Learning EMNIST
 
-From-scratch NumPy neural network for MNIST digit classification, plus Black, Ruff, and MyPy for code quality.
+From-scratch NumPy neural network for EMNIST balanced character classification, plus Black, Ruff, and MyPy for code quality.
 
 ## Tooling
 
@@ -98,7 +98,7 @@ You can use either `make` or `invoke` to run the following commands:
 
 | Command | Makefile | Invoke | Description |
 |---|---|---|---|
-| **Train Network** | `make train` | `invoke train` | Trains the MNIST network (`python -m mnistnn`). |
+| **Train Network** | `make train` | `invoke train` | Trains the EMNIST network (`python -m mnistnn`). |
 | **Format Code** | `make format` | `invoke format` | Formats the code using Black. |
 | **Check Formatting** | `make format-check` | `invoke format-check` | Checks if the code is formatted correctly without making changes. |
 | **Lint Code** | `make lint` | `invoke lint` | Lints the code with Ruff to find potential issues. |
