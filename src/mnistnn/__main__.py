@@ -1,4 +1,4 @@
-"""Run MNIST visualization and training with ``python -m mnistnn``."""
+"""Run EMNIST visualization and training with ``python -m mnistnn``."""
 
 import logging
 

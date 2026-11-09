@@ -1,4 +1,4 @@
-"""Load images and labels from MNIST binary data files."""
+"""Load images and labels from EMNIST binary data files."""
 
 import os
 from typing import TypedDict
@@ -7,7 +7,7 @@ import numpy as np  # linear algebra
 
 
 class MNISTImagesInfo(TypedDict):
-    """Image-file metadata and pixel array loaded from an MNIST file."""
+    """Image-file metadata and pixel array loaded from an EMNIST file."""
 
     type: str
     num_images: int
@@ -17,7 +17,7 @@ class MNISTImagesInfo(TypedDict):
 
 
 class MNISTLabelsInfo(TypedDict):
-    """Label-file metadata and label array loaded from an MNIST file."""
+    """Label-file metadata and label array loaded from an EMNIST file."""
 
     type: str
     num_labels: int
@@ -28,10 +28,10 @@ MNISTSplitInfo = tuple[MNISTImagesInfo, MNISTLabelsInfo]
 
 
 #
-# MNIST Data Loader Class
+# EMNIST Data Loader Class
 #
 class MNISTDataLoader:
-    """Class to load MNIST dataset from given file paths."""
+    """Class to load EMNIST dataset from given file paths."""
 
     def __init__(
         self,
@@ -55,7 +55,7 @@ class MNISTDataLoader:
         # Store Test data
         self.test_info: MNISTSplitInfo = self._load_test_data()
 
-    """Validate the existence of the MNIST data files."""
+    """Validate the existence of the EMNIST data files."""
 
     # Private method to validate file paths
     # Do not call this method directly from outside the class
@@ -75,7 +75,7 @@ class MNISTDataLoader:
                     f"Test {name.replace('_path', '')} file not found: {path}"
                 )
 
-    """Read labels from MNIST files."""
+    """Read labels from EMNIST files."""
 
     # Private method to validate file paths
     # Do not call this method directly from outside the class
@@ -90,7 +90,7 @@ class MNISTDataLoader:
                 )
             # Read number of labels header
             num_labels: int = int.from_bytes(f.read(4), "big")
-            # Read label data, each label is a single digit between 0 and 9
+            # Read label data; each label is a class index in [0, 46]
             # that is stored as a single byte
             raw_bytes: bytes = f.read()
             labels = []
@@ -107,7 +107,7 @@ class MNISTDataLoader:
         }
         return labels_dict
 
-    """Read images from MNIST files."""
+    """Read images from EMNIST files."""
 
     # Private method to validate file paths
     # Do not call this method directly from outside the class
@@ -155,7 +155,7 @@ class MNISTDataLoader:
         }
         return images_dict
 
-    """Read images and labels from MNIST files."""
+    """Read images and labels from EMNIST files."""
 
     # Private method to validate file paths
     # Do not call this method directly from outside the class
@@ -170,7 +170,7 @@ class MNISTDataLoader:
             )
         return (images_dict, labels_dict)
 
-    """Load training data from MNIST files."""
+    """Load training data from EMNIST files."""
 
     # Private method to validate file paths
     # Do not call this method directly from outside the class
@@ -182,7 +182,7 @@ class MNISTDataLoader:
             self.training_input['labels_path'],
         )
 
-    """Load test data from MNIST files."""
+    """Load test data from EMNIST files."""
 
     # Private method to validate file paths
     # Do not call this method directly from outside the class
@@ -193,7 +193,7 @@ class MNISTDataLoader:
             self.test_input['images_path'], self.test_input['labels_path']
         )
 
-    """Load both training and test data from MNIST files."""
+    """Load both training and test data from EMNIST files."""
 
     def show_data(
         self,

@@ -1,1 +1,1 @@
-"""Functions for the MNIST neural network."""
+"""Functions for the EMNIST neural network."""

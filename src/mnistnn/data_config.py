@@ -1,10 +1,10 @@
-"""Define file paths for the MNIST training and test datasets."""
+"""Define file paths for the EMNIST training and test datasets."""
 
 import os
 from os.path import join
 
 #
-# Set file paths based on added MNIST Datasets
+# Set file paths based on added EMNIST Datasets
 #
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

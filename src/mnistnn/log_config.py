@@ -1,4 +1,4 @@
-"""Configure file logging for MNIST training."""
+"""Configure file logging for EMNIST training."""
 
 import logging
 from pathlib import Path

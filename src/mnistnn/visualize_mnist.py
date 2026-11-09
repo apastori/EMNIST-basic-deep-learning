@@ -1,4 +1,4 @@
-"""Visualize the MNIST dataset."""
+"""Visualize the EMNIST dataset."""
 
 import numpy as np
 
@@ -6,7 +6,7 @@ import numpy as np
 def visualize_mnist(
     train_images: np.ndarray, train_labels: np.ndarray, visualize: bool = True
 ) -> None:
-    """Load the MNIST dataset and visualize it."""
+    """Load the EMNIST dataset and visualize it."""
     if visualize:
         from mnistnn.mnist_visualizer import MNISTVisualizer
 

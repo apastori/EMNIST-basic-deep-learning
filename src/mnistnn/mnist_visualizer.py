@@ -1,4 +1,4 @@
-"""Provide plotting helpers for MNIST images and statistics."""
+"""Provide plotting helpers for EMNIST images and statistics."""
 
 from typing import NoReturn
 
@@ -8,7 +8,7 @@ import numpy as np
 
 
 class MNISTVisualizer:
-    """Utility class for visualizing MNIST data."""
+    """Utility class for visualizing EMNIST data."""
 
     def __new__(cls) -> NoReturn:
         """Prevent instantiation of this static utility class."""
@@ -20,9 +20,9 @@ class MNISTVisualizer:
 
     @staticmethod
     def plot_single_image(
-        image: np.ndarray, label: int, title: str = "MNIST Image"
+        image: np.ndarray, label: int, title: str = "EMNIST Image"
     ) -> None:
-        """Plot a single MNIST image with its label."""
+        """Plot a single EMNIST image with its label."""
         plt.figure(figsize=(4, 4))
         plt.imshow(image, cmap="gray")
         plt.title(f"{title} - Label: {label}")
@@ -34,9 +34,9 @@ class MNISTVisualizer:
         images: np.ndarray,
         labels: np.ndarray,
         num_images: int = 9,
-        title: str = "MNIST Images Grid",
+        title: str = "EMNIST Images Grid",
     ) -> None:
-        """Plot multiple MNIST images in a grid."""
+        """Plot multiple EMNIST images in a grid."""
         display_count: int = min(num_images, len(images))
         grid_size: int = int(np.ceil(np.sqrt(display_count)))
         fig: matplotlib.figure.Figure
@@ -59,7 +59,7 @@ class MNISTVisualizer:
 
     @staticmethod
     def plot_image_statistics(
-        images: np.ndarray, title: str = "MNIST Image Statistics"
+        images: np.ndarray, title: str = "EMNIST Image Statistics"
     ) -> None:
         """Plot pixel intensity distribution."""
         pixels: np.ndarray = images.flatten()
