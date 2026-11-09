@@ -1,4 +1,4 @@
-"""Provide the MNIST neural-network implementation."""
+"""Provide the EMNIST neural-network implementation."""
 
 import numpy as np
 
@@ -11,13 +11,13 @@ from mnistnn.loss import Loss
 
 
 class MNISTNeuralNetwork:
-    """Neural network for MNIST digit classification.
+    """Neural network for EMNIST balanced character classification.
 
     Architecture:
     - Input: 784 (28x28 flattened)
     - Hidden Layer 1: 128 units with ReLU
     - Hidden Layer 2: 64 units with ReLU
-    - Output Layer: 10 units with Softmax
+    - Output Layer: 47 units with Softmax
     """
 
     def __init__(self) -> None:
@@ -34,7 +34,7 @@ class MNISTNeuralNetwork:
                 output_size=64,
                 activation=ReLU(),
             ),
-            Layer(input_size=64, output_size=10, activation=SoftmaxStable()),
+            Layer(input_size=64, output_size=47, activation=SoftmaxStable()),
         ]
         # Loss function
         self.loss_fn: Loss = CrossEntropyLoss()

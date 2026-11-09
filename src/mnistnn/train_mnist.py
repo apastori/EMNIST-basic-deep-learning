@@ -29,7 +29,7 @@ LEARNING_RATE_FLOOR: float = 1e-4
 
 
 def _prepare_images(images: np.ndarray, dataset_name: str) -> np.ndarray:
-    """Validate MNIST image dimensions and flatten image batches."""
+    """Validate EMNIST image dimensions and flatten image batches."""
     if images.ndim == 3:
         if images.shape[1:] != (28, 28):
             raise ValueError(
@@ -58,7 +58,7 @@ def train_mnist(
     visualize: bool = True,
     append_logs: bool = True,
 ) -> MNISTNeuralNetwork:
-    """Load MNIST and train the network, optionally starting a fresh log."""
+    """Load EMNIST and train the network, optionally starting a fresh log."""
     if epochs <= 0:
         raise ValueError('epochs must be greater than zero')
     if batch_size <= 0:
@@ -69,9 +69,9 @@ def train_mnist(
         raise ValueError('momentum must be in the range [0, 1)')
 
     log_path = configure_file_logging(logger, append=append_logs)
-    logger.info('Writing MNIST training logs to %s', log_path)
+    logger.info('Writing EMNIST training logs to %s', log_path)
     logger.info(
-        'Starting MNIST training (epochs=%d, batch_size=%d, '
+        'Starting EMNIST training (epochs=%d, batch_size=%d, '
         'learning_rate=%g, momentum=%g, visualize=%s)',
         epochs,
         batch_size,
@@ -132,13 +132,15 @@ def train_mnist(
         raise TypeError('Training labels must contain integer class indices')
     if not np.issubdtype(test_labels.dtype, np.integer):
         raise TypeError('Test labels must contain integer class indices')
-    if np.any((train_labels < 0) | (train_labels >= 10)):
-        raise ValueError('Training labels must be digits between 0 and 9')
-    if np.any((test_labels < 0) | (test_labels >= 10)):
-        raise ValueError('Test labels must be digits between 0 and 9')
+    if np.any((train_labels < 0) | (train_labels >= 47)):
+        raise ValueError(
+            'Training labels must be class indices between 0 and 46'
+        )
+    if np.any((test_labels < 0) | (test_labels >= 47)):
+        raise ValueError('Test labels must be class indices between 0 and 46')
 
     logger.info(
-        'Loaded MNIST datasets (training: %d images, shape=%s, dtype=%s; '
+        'Loaded EMNIST datasets (training: %d images, shape=%s, dtype=%s; '
         'test: %d images, shape=%s, dtype=%s)',
         train_size,
         train_images.shape,
@@ -148,7 +150,7 @@ def train_mnist(
         test_images.dtype,
     )
 
-    # Visualize the MNIST dataset if visualize is True
+    # Visualize the EMNIST dataset if visualize is True
     visualize_mnist(
         train_images=train_images,
         train_labels=train_labels,
@@ -159,9 +161,9 @@ def train_mnist(
     rng: np.random.Generator = np.random.default_rng()
     train_images = prepared_train_images
     test_images = prepared_test_images
-    # generated one-hot encoded targets for the 10 classes (digits 0-9)
-    # Matrix 10 X 10
-    class_targets: np.ndarray = np.eye(10, dtype=np.float64)
+    # generated one-hot encoded targets for the 47 classes (digits 0-46)
+    # Matrix 47 X 47
+    class_targets: np.ndarray = np.eye(47, dtype=np.float64)
     current_learning_rate: float = learning_rate
     # Train for the specified number of epochs
     training_started_at: float = perf_counter()
@@ -220,7 +222,7 @@ def train_mnist(
         )
 
     logger.info(
-        'MNIST training completed in %.2fs',
+        'EMNIST training completed in %.2fs',
         perf_counter() - training_started_at,
     )
     return network
