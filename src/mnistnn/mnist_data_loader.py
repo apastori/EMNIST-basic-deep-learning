@@ -145,7 +145,8 @@ class MNISTDataLoader:
                 for r in range(rows):
                     row: list[int] = flat[r * cols : (r + 1) * cols]
                     image.append(row)
-                images.append(np.array(image))
+                # EMNIST IDX images are stored transposed relative to MNIST
+                images.append(np.array(image).T)
         images_dict: MNISTImagesInfo = {
             "type": "images",
             "num_images": num_images,
