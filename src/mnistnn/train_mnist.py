@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from time import perf_counter
 from typing import TYPE_CHECKING
 
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-LEARNING_RATE_DECAY: float = 0.9
 LEARNING_RATE_FLOOR: float = 1e-4
 
 
@@ -50,11 +50,23 @@ def _normalize_images(images: np.ndarray) -> np.ndarray:
     return images.astype(np.float64) / 255.0 - 0.5
 
 
+def _cosine_learning_rate(
+    initial_rate: float, floor: float, epoch: int, epochs: int
+) -> float:
+    """Return the cosine-annealed learning rate for a 0-based epoch index."""
+    if epochs <= 1:
+        return initial_rate
+    progress: float = epoch / (epochs - 1)
+    cosine: float = 0.5 * (1.0 + math.cos(math.pi * progress))
+    return floor + (initial_rate - floor) * cosine
+
+
 def train_mnist(
-    epochs: int = 15,
+    epochs: int = 80,
     batch_size: int = 64,
-    learning_rate: float = 0.05,
+    learning_rate: float = 0.03,
     momentum: float = 0.9,
+    weight_decay: float = 1e-4,
     visualize: bool = True,
     append_logs: bool = True,
 ) -> MNISTNeuralNetwork:
@@ -67,16 +79,20 @@ def train_mnist(
         raise ValueError('learning_rate must be greater than zero')
     if momentum < 0.0 or momentum >= 1.0:
         raise ValueError('momentum must be in the range [0, 1)')
+    if weight_decay < 0.0:
+        raise ValueError('weight_decay must be greater than or equal to zero')
 
     log_path = configure_file_logging(logger, append=append_logs)
     logger.info('Writing EMNIST training logs to %s', log_path)
     logger.info(
         'Starting EMNIST training (epochs=%d, batch_size=%d, '
-        'learning_rate=%g, momentum=%g, visualize=%s)',
+        'learning_rate=%g, momentum=%g, weight_decay=%g, '
+        'schedule=cosine, visualize=%s)',
         epochs,
         batch_size,
         learning_rate,
         momentum,
+        weight_decay,
         visualize,
     )
 
@@ -164,10 +180,12 @@ def train_mnist(
     # generated one-hot encoded targets for the 47 classes (digits 0-46)
     # Matrix 47 X 47
     class_targets: np.ndarray = np.eye(47, dtype=np.float64)
-    current_learning_rate: float = learning_rate
     # Train for the specified number of epochs
     training_started_at: float = perf_counter()
     for epoch in range(epochs):
+        current_learning_rate: float = _cosine_learning_rate(
+            learning_rate, LEARNING_RATE_FLOOR, epoch, epochs
+        )
         epoch_started_at: float = perf_counter()
         # Shuffle the training data at the beginning of each epoch
         shuffled_indices: npt.NDArray[np.int64] = rng.permutation(train_size)
@@ -190,6 +208,7 @@ def train_mnist(
                 batch_targets,
                 current_learning_rate,
                 momentum,
+                weight_decay,
             )
             total_loss += avg_loss * len(batch_indices)
         # Evaluate the model on the test set after each epoch
@@ -215,10 +234,6 @@ def train_mnist(
             test_accuracy * 100,
             current_learning_rate,
             perf_counter() - epoch_started_at,
-        )
-        current_learning_rate = max(
-            current_learning_rate * LEARNING_RATE_DECAY,
-            LEARNING_RATE_FLOOR,
         )
 
     logger.info(
