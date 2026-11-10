@@ -15,9 +15,9 @@ class MNISTNeuralNetwork:
 
     Architecture:
     - Input: 784 (28x28 flattened)
-    - Hidden Layer 1: 512 units with ReLU
-    - Hidden Layer 2: 256 units with ReLU
-    - Hidden Layer 3: 128 units with ReLU
+    - Hidden Layer 1: 512 units with ReLU and dropout 0.1
+    - Hidden Layer 2: 256 units with ReLU and dropout 0.2
+    - Hidden Layer 3: 128 units with ReLU and dropout 0.2
     - Output Layer: 47 units with Softmax
     """
 
@@ -29,16 +29,19 @@ class MNISTNeuralNetwork:
                 input_size=784,
                 output_size=512,
                 activation=ReLU(),
+                dropout_rate=0.1,
             ),
             Layer(
                 input_size=512,
                 output_size=256,
                 activation=ReLU(),
+                dropout_rate=0.2,
             ),
             Layer(
                 input_size=256,
                 output_size=128,
                 activation=ReLU(),
+                dropout_rate=0.2,
             ),
             Layer(input_size=128, output_size=47, activation=SoftmaxStable()),
         ]
@@ -48,8 +51,15 @@ class MNISTNeuralNetwork:
         self._weight_velocities: list[np.ndarray] | None = None
         self._bias_velocities: list[np.ndarray] | None = None
 
-    def forward(self, input_: np.ndarray) -> np.ndarray:
+    def _set_training(self, training: bool) -> None:
+        """Enable or disable dropout on every dense layer."""
+        for layer in self.layers:
+            if isinstance(layer, Layer):
+                layer.training = training
+
+    def forward(self, input_: np.ndarray, training: bool = True) -> np.ndarray:
         """Perform a forward pass through the network."""
+        self._set_training(training)
         # Flatten input if needed (batch_size, 28, 28) -> (batch_size, 784)
         if len(input_.shape) == 3:
             if input_.shape[1:] != (28, 28):
@@ -81,9 +91,12 @@ class MNISTNeuralNetwork:
         return self.loss_fn.forward(predictions, targets)
 
     def update_parameters(
-        self, learning_rate: float, momentum: float = 0.9
+        self,
+        learning_rate: float,
+        momentum: float = 0.9,
+        weight_decay: float = 1e-4,
     ) -> None:
-        """Update weights and biases using SGD with momentum."""
+        """Update weights and biases using SGD with momentum and L2 decay."""
         if self._weight_velocities is None or self._bias_velocities is None:
             self._weight_velocities = []
             self._bias_velocities = []
@@ -109,7 +122,9 @@ class MNISTNeuralNetwork:
             bias_velocity = momentum * self._bias_velocities[index] + grad_bias
             self._weight_velocities[index] = weight_velocity
             self._bias_velocities[index] = bias_velocity
-            weights -= learning_rate * weight_velocity
+            weights -= learning_rate * (
+                weight_velocity + weight_decay * weights
+            )
             bias -= learning_rate * bias_velocity
 
     def train_step(
@@ -118,10 +133,11 @@ class MNISTNeuralNetwork:
         y: np.ndarray,
         learning_rate: float,
         momentum: float = 0.9,
+        weight_decay: float = 1e-4,
     ) -> float:
         """Perform a single training step."""
         # Forward pass
-        predictions: np.ndarray = self.forward(x)
+        predictions: np.ndarray = self.forward(x, training=True)
 
         # Compute loss
         loss: float = self.compute_loss(predictions, y)
@@ -131,13 +147,13 @@ class MNISTNeuralNetwork:
         self.backward(grad)
 
         # Update parameters
-        self.update_parameters(learning_rate, momentum)
+        self.update_parameters(learning_rate, momentum, weight_decay)
 
         return loss
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """Predict class labels."""
-        predictions: np.ndarray = self.forward(x)
+        predictions: np.ndarray = self.forward(x, training=False)
         return np.asarray(np.argmax(predictions, axis=1))
 
     def evaluate(self, x: np.ndarray, y: np.ndarray) -> float:
