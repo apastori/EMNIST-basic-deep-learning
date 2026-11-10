@@ -15,8 +15,9 @@ class MNISTNeuralNetwork:
 
     Architecture:
     - Input: 784 (28x28 flattened)
-    - Hidden Layer 1: 128 units with ReLU
-    - Hidden Layer 2: 64 units with ReLU
+    - Hidden Layer 1: 512 units with ReLU
+    - Hidden Layer 2: 256 units with ReLU
+    - Hidden Layer 3: 128 units with ReLU
     - Output Layer: 47 units with Softmax
     """
 
@@ -26,15 +27,20 @@ class MNISTNeuralNetwork:
         self.layers: list[LayerParent] = [
             Layer(
                 input_size=784,
-                output_size=128,
+                output_size=512,
                 activation=ReLU(),
             ),
             Layer(
-                input_size=128,
-                output_size=64,
+                input_size=512,
+                output_size=256,
                 activation=ReLU(),
             ),
-            Layer(input_size=64, output_size=47, activation=SoftmaxStable()),
+            Layer(
+                input_size=256,
+                output_size=128,
+                activation=ReLU(),
+            ),
+            Layer(input_size=128, output_size=47, activation=SoftmaxStable()),
         ]
         # Loss function
         self.loss_fn: Loss = CrossEntropyLoss()
