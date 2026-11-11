@@ -67,7 +67,7 @@ def train_mnist(
     batch_size: int = 64,
     learning_rate: float = 0.03,
     momentum: float = 0.9,
-    weight_decay: float = 3e-4,
+    weight_decay: float = 1e-4,
     visualize: bool = True,
     append_logs: bool = True,
 ) -> MNISTNeuralNetwork:

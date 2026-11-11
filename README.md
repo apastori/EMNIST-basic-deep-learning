@@ -40,8 +40,8 @@ All of the commands below run `python -m mnistnn`, which calls `train_mnist()` w
 - batch size 64
 - learning rate 0.03 (cosine annealed down to `1e-4`)
 - SGD momentum 0.9
-- weight decay `3e-4`
-- dropout `0.2 / 0.3 / 0.3` on the three hidden layers
+- weight decay `1e-4`
+- dropout `0.15 / 0.25 / 0.25` on the three hidden layers (`1024 → 512 → 256`)
 - training augmentation: random ±2 px shift and ±8° rotation
 - pixel values scaled to `[-0.5, 0.5]`
 - sample plots enabled (`visualize=True`)

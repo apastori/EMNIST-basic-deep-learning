@@ -15,9 +15,9 @@ class MNISTNeuralNetwork:
 
     Architecture:
     - Input: 784 (28x28 flattened)
-    - Hidden Layer 1: 512 units with ReLU and dropout 0.2
-    - Hidden Layer 2: 256 units with ReLU and dropout 0.3
-    - Hidden Layer 3: 128 units with ReLU and dropout 0.3
+    - Hidden Layer 1: 1024 units with ReLU and dropout 0.15
+    - Hidden Layer 2: 512 units with ReLU and dropout 0.25
+    - Hidden Layer 3: 256 units with ReLU and dropout 0.25
     - Output Layer: 47 units with Softmax
     """
 
@@ -27,23 +27,23 @@ class MNISTNeuralNetwork:
         self.layers: list[LayerParent] = [
             Layer(
                 input_size=784,
+                output_size=1024,
+                activation=ReLU(),
+                dropout_rate=0.15,
+            ),
+            Layer(
+                input_size=1024,
                 output_size=512,
                 activation=ReLU(),
-                dropout_rate=0.2,
+                dropout_rate=0.25,
             ),
             Layer(
                 input_size=512,
                 output_size=256,
                 activation=ReLU(),
-                dropout_rate=0.3,
+                dropout_rate=0.25,
             ),
-            Layer(
-                input_size=256,
-                output_size=128,
-                activation=ReLU(),
-                dropout_rate=0.3,
-            ),
-            Layer(input_size=128, output_size=47, activation=SoftmaxStable()),
+            Layer(input_size=256, output_size=47, activation=SoftmaxStable()),
         ]
         # Loss function
         self.loss_fn: Loss = CrossEntropyLoss()
@@ -94,7 +94,7 @@ class MNISTNeuralNetwork:
         self,
         learning_rate: float,
         momentum: float = 0.9,
-        weight_decay: float = 3e-4,
+        weight_decay: float = 1e-4,
     ) -> None:
         """Update weights and biases using SGD with momentum and L2 decay."""
         if self._weight_velocities is None or self._bias_velocities is None:
@@ -133,7 +133,7 @@ class MNISTNeuralNetwork:
         y: np.ndarray,
         learning_rate: float,
         momentum: float = 0.9,
-        weight_decay: float = 3e-4,
+        weight_decay: float = 1e-4,
     ) -> float:
         """Perform a single training step."""
         # Forward pass

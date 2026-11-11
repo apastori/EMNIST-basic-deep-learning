@@ -2,8 +2,8 @@
 
 Architecture:
 - Input: 784 (28x28 flattened)
-- Hidden Layer 1: 512 units with ReLU and dropout 0.2
-- Hidden Layer 2: 256 units with ReLU and dropout 0.3
-- Hidden Layer 3: 128 units with ReLU and dropout 0.3
+- Hidden Layer 1: 1024 units with ReLU and dropout 0.15
+- Hidden Layer 2: 512 units with ReLU and dropout 0.25
+- Hidden Layer 3: 256 units with ReLU and dropout 0.25
 - Output Layer: 47 units with Softmax
 """
