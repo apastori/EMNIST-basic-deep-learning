@@ -34,18 +34,21 @@ A `Makefile` is included to provide a simple and familiar interface for common c
 
 Install dependencies first (`invoke install` or `make install`). Run every command from the project root. The package lives under `src/`, so Python needs `PYTHONPATH=src` (the Invoke and Make targets set this for you).
 
-All of the commands below run `python -m mnistnn`, which calls `train_mnist()` with these defaults:
+All of the commands below run `python -m mnistnn`, which calls `train_ensemble()` with these defaults:
 
-- 150 epochs
+- 5 ensemble members (`1024 → 512 → 256 → 47`), seeds `0` through `4`
+- 100 epochs per member
 - batch size 64
 - learning rate 0.03 (cosine annealed down to `1e-4`)
 - SGD momentum 0.9
 - weight decay `1e-4`
-- dropout `0.1 / 0.2 / 0.2` on the three hidden layers (`2048 → 1024 → 512`)
-- label smoothing `0.05`
+- dropout `0.15 / 0.25 / 0.25` on the three hidden layers
+- label smoothing `0.0`
 - training augmentation: random ±2 px shift and ±8° rotation
 - pixel values scaled to `[-0.5, 0.5]`
-- sample plots enabled (`visualize=True`)
+- sample plots enabled for the first member trained in a session (`visualize=True`)
+
+Weights are saved under `models/member_0.npz` … `models/member_4.npz`. If a weight file already exists, that member is skipped so a stopped run can resume. When all five files are present, the same command only re-evaluates the ensemble (including one-pixel shift averaging).
 
 Training progress is written to `log/mnist-training.log`.
 
@@ -102,7 +105,7 @@ You can use either `make` or `invoke` to run the following commands:
 
 | Command | Makefile | Invoke | Description |
 |---|---|---|---|
-| **Train Network** | `make train` | `invoke train` | Trains the EMNIST network (`python -m mnistnn`). |
+| **Train Network** | `make train` | `invoke train` | Trains the EMNIST MLP ensemble (`python -m mnistnn`). |
 | **Format Code** | `make format` | `invoke format` | Formats the code using Black. |
 | **Check Formatting** | `make format-check` | `invoke format-check` | Checks if the code is formatted correctly without making changes. |
 | **Lint Code** | `make lint` | `invoke lint` | Lints the code with Ruff to find potential issues. |

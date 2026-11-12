@@ -14,7 +14,7 @@ Usage:
     invoke install         - Install development dependencies
     invoke check-all       - Run all checks without modifying files
     invoke run-tests-init  - Run the src/tests/__init__.py file directly
-    invoke train           - Train the EMNIST network
+    invoke train           - Train the EMNIST MLP ensemble
     invoke --list          - Show all available tasks
 """
 
@@ -152,8 +152,8 @@ def run_tests_init(c: Context) -> None:
 
 @task
 def train(c: Context) -> None:
-    """Train the EMNIST network with ``python -m mnistnn``."""
-    print("▶ Training EMNIST network...")
+    """Train the EMNIST MLP ensemble with ``python -m mnistnn``."""
+    print("▶ Training EMNIST MLP ensemble...")
     env = os.environ.copy()
     env["PYTHONPATH"] = "src"
     c.run(f"{sys.executable} -m mnistnn", env=env)
