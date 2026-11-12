@@ -63,7 +63,7 @@ def _cosine_learning_rate(
 
 
 def train_mnist(
-    epochs: int = 100,
+    epochs: int = 150,
     batch_size: int = 64,
     learning_rate: float = 0.03,
     momentum: float = 0.9,
@@ -178,9 +178,12 @@ def train_mnist(
     rng: np.random.Generator = np.random.default_rng()
     train_images = prepared_train_images
     test_images = prepared_test_images
-    # generated one-hot encoded targets for the 47 classes (digits 0-46)
-    # Matrix 47 X 47
+    # Softened one-hot targets (label smoothing ε=0.05) for the 47 classes
+    label_smoothing: float = 0.05
     class_targets: np.ndarray = np.eye(47, dtype=np.float64)
+    class_targets = class_targets * (1.0 - label_smoothing) + (
+        label_smoothing / 47.0
+    )
     # Train for the specified number of epochs
     training_started_at: float = perf_counter()
     for epoch in range(epochs):

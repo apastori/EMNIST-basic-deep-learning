@@ -36,12 +36,13 @@ Install dependencies first (`invoke install` or `make install`). Run every comma
 
 All of the commands below run `python -m mnistnn`, which calls `train_mnist()` with these defaults:
 
-- 100 epochs
+- 150 epochs
 - batch size 64
 - learning rate 0.03 (cosine annealed down to `1e-4`)
 - SGD momentum 0.9
 - weight decay `1e-4`
-- dropout `0.15 / 0.25 / 0.25` on the three hidden layers (`1024 → 512 → 256`)
+- dropout `0.1 / 0.2 / 0.2` on the three hidden layers (`2048 → 1024 → 512`)
+- label smoothing `0.05`
 - training augmentation: random ±2 px shift and ±8° rotation
 - pixel values scaled to `[-0.5, 0.5]`
 - sample plots enabled (`visualize=True`)
