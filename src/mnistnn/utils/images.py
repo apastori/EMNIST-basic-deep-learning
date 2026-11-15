@@ -52,6 +52,29 @@ def _rotate_image(
     return rotated_array / 255.0 - 0.5
 
 
+def shift_images(
+    images: np.ndarray,
+    shift_y: int,
+    shift_x: int,
+    fill_value: float = AUGMENT_FILL_VALUE,
+) -> np.ndarray:
+    """Translate a batch of flattened 28x28 images by ``(shift_y, shift_x)``."""
+    if images.ndim != 2 or images.shape[1] != 784:
+        raise ValueError(
+            f'Images to shift must have shape (N, 784), got {images.shape}'
+        )
+    if shift_y == 0 and shift_x == 0:
+        return images.copy()
+
+    batch: np.ndarray = images.reshape(-1, 28, 28)
+    shifted_batch: np.ndarray = np.empty_like(batch)
+    for index in range(len(batch)):
+        shifted_batch[index] = _shift_image(
+            batch[index], shift_y, shift_x, fill_value
+        )
+    return shifted_batch.reshape(-1, 784)
+
+
 def random_shift_and_rotate(
     images: np.ndarray,
     rng: np.random.Generator,

@@ -1,5 +1,7 @@
 """Provide the EMNIST neural-network implementation."""
 
+from pathlib import Path
+
 import numpy as np
 
 from mnistnn.functions.CrossEntropyLoss import CrossEntropyLoss
@@ -15,9 +17,9 @@ class MNISTNeuralNetwork:
 
     Architecture:
     - Input: 784 (28x28 flattened)
-    - Hidden Layer 1: 2048 units with ReLU and dropout 0.1
-    - Hidden Layer 2: 1024 units with ReLU and dropout 0.2
-    - Hidden Layer 3: 512 units with ReLU and dropout 0.2
+    - Hidden Layer 1: 1024 units with ReLU and dropout 0.15
+    - Hidden Layer 2: 512 units with ReLU and dropout 0.25
+    - Hidden Layer 3: 256 units with ReLU and dropout 0.25
     - Output Layer: 47 units with Softmax
     """
 
@@ -27,23 +29,23 @@ class MNISTNeuralNetwork:
         self.layers: list[LayerParent] = [
             Layer(
                 input_size=784,
-                output_size=2048,
-                activation=ReLU(),
-                dropout_rate=0.1,
-            ),
-            Layer(
-                input_size=2048,
                 output_size=1024,
                 activation=ReLU(),
-                dropout_rate=0.2,
+                dropout_rate=0.15,
             ),
             Layer(
                 input_size=1024,
                 output_size=512,
                 activation=ReLU(),
-                dropout_rate=0.2,
+                dropout_rate=0.25,
             ),
-            Layer(input_size=512, output_size=47, activation=SoftmaxStable()),
+            Layer(
+                input_size=512,
+                output_size=256,
+                activation=ReLU(),
+                dropout_rate=0.25,
+            ),
+            Layer(input_size=256, output_size=47, activation=SoftmaxStable()),
         ]
         # Loss function
         self.loss_fn: Loss = CrossEntropyLoss()
@@ -151,9 +153,13 @@ class MNISTNeuralNetwork:
 
         return loss
 
+    def predict_proba(self, x: np.ndarray) -> np.ndarray:
+        """Return class probabilities with dropout disabled."""
+        return self.forward(x, training=False)
+
     def predict(self, x: np.ndarray) -> np.ndarray:
         """Predict class labels."""
-        predictions: np.ndarray = self.forward(x, training=False)
+        predictions: np.ndarray = self.predict_proba(x)
         return np.asarray(np.argmax(predictions, axis=1))
 
     def evaluate(self, x: np.ndarray, y: np.ndarray) -> float:
@@ -167,3 +173,38 @@ class MNISTNeuralNetwork:
 
         accuracy: float = float(np.mean(predictions == labels))
         return accuracy
+
+    def save_weights(self, path: str | Path) -> None:
+        """Save layer weights and biases to an ``.npz`` file."""
+        arrays_model_weights: dict[str, np.ndarray] = {}
+        for index, layer in enumerate(self.layers):
+            weights: np.ndarray
+            bias: np.ndarray
+            weights, bias = layer.get_params()
+            arrays_model_weights[f'weights_{index}'] = weights
+            arrays_model_weights[f'bias_{index}'] = bias
+        np.savez(path, **arrays_model_weights)
+
+    def load_weights(self, path: str | Path) -> None:
+        """Load layer weights and biases from an ``.npz`` file."""
+        with np.load(path) as arrays_model_weights:
+            for index, layer in enumerate(self.layers):
+                weights: np.ndarray
+                bias: np.ndarray
+                weights, bias = layer.get_params()
+                loaded_weights: np.ndarray = arrays_model_weights[f'weights_{index}']
+                loaded_bias: np.ndarray = arrays_model_weights[f'bias_{index}']
+                if loaded_weights.shape != weights.shape:
+                    raise ValueError(
+                        f'Weight shape mismatch for layer {index}: '
+                        f'expected {weights.shape}, got {loaded_weights.shape}'
+                    )
+                if loaded_bias.shape != bias.shape:
+                    raise ValueError(
+                        f'Bias shape mismatch for layer {index}: '
+                        f'expected {bias.shape}, got {loaded_bias.shape}'
+                    )
+                weights[:] = loaded_weights
+                bias[:] = loaded_bias
+        self._weight_velocities = None
+        self._bias_velocities = None

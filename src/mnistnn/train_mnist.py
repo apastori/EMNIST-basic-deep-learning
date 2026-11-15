@@ -62,43 +62,9 @@ def _cosine_learning_rate(
     return floor + (initial_rate - floor) * cosine
 
 
-def train_mnist(
-    epochs: int = 150,
-    batch_size: int = 64,
-    learning_rate: float = 0.03,
-    momentum: float = 0.9,
-    weight_decay: float = 1e-4,
-    visualize: bool = True,
-    append_logs: bool = True,
-) -> MNISTNeuralNetwork:
-    """Load EMNIST and train the network, optionally starting a fresh log."""
-    if epochs <= 0:
-        raise ValueError('epochs must be greater than zero')
-    if batch_size <= 0:
-        raise ValueError('batch_size must be greater than zero')
-    if learning_rate <= 0:
-        raise ValueError('learning_rate must be greater than zero')
-    if momentum < 0.0 or momentum >= 1.0:
-        raise ValueError('momentum must be in the range [0, 1)')
-    if weight_decay < 0.0:
-        raise ValueError('weight_decay must be greater than or equal to zero')
-
-    log_path = configure_file_logging(logger, append=append_logs)
-    logger.info('Writing EMNIST training logs to %s', log_path)
-    logger.info(
-        'Starting EMNIST training (epochs=%d, batch_size=%d, '
-        'learning_rate=%g, momentum=%g, weight_decay=%g, '
-        'schedule=cosine, visualize=%s)',
-        epochs,
-        batch_size,
-        learning_rate,
-        momentum,
-        weight_decay,
-        visualize,
-    )
-
+def load_emnist_arrays() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Load and validate the EMNIST training and test arrays."""
     from mnistnn.data_config import dict_config_test, dict_config_train
-    from mnistnn.mnist_neural_network import MNISTNeuralNetwork
 
     data_loader: MNISTDataLoader = MNISTDataLoader(
         dict_config_train, dict_config_test
@@ -156,34 +122,102 @@ def train_mnist(
     if np.any((test_labels < 0) | (test_labels >= 47)):
         raise ValueError('Test labels must be class indices between 0 and 46')
 
+    return (
+        prepared_train_images,
+        train_labels,
+        prepared_test_images,
+        test_labels,
+    )
+
+
+def train_mnist(
+    epochs: int = 100,
+    batch_size: int = 64,
+    learning_rate: float = 0.03,
+    momentum: float = 0.9,
+    weight_decay: float = 1e-4,
+    label_smoothing: float = 0.0,
+    seed: int | None = None,
+    visualize: bool = True,
+    append_logs: bool = True,
+) -> MNISTNeuralNetwork:
+    """Load EMNIST and train the network, optionally starting a fresh log."""
+    if epochs <= 0:
+        raise ValueError('epochs must be greater than zero')
+    if batch_size <= 0:
+        raise ValueError('batch_size must be greater than zero')
+    if learning_rate <= 0:
+        raise ValueError('learning_rate must be greater than zero')
+    if momentum < 0.0 or momentum >= 1.0:
+        raise ValueError('momentum must be in the range [0, 1)')
+    if weight_decay < 0.0:
+        raise ValueError('weight_decay must be greater than or equal to zero')
+    if label_smoothing < 0.0 or label_smoothing >= 1.0:
+        raise ValueError('label_smoothing must be in the range [0, 1)')
+
+    log_path = configure_file_logging(logger, append=append_logs)
+    logger.info('Writing EMNIST training logs to %s', log_path)
+    logger.info(
+        'Starting EMNIST training (epochs=%d, batch_size=%d, '
+        'learning_rate=%g, momentum=%g, weight_decay=%g, '
+        'label_smoothing=%g, seed=%s, schedule=cosine, visualize=%s)',
+        epochs,
+        batch_size,
+        learning_rate,
+        momentum,
+        weight_decay,
+        label_smoothing,
+        seed,
+        visualize,
+    )
+
+    from mnistnn.mnist_neural_network import MNISTNeuralNetwork
+
+    (
+        train_images_raw,
+        train_labels,
+        test_images_raw,
+        test_labels,
+    ) = load_emnist_arrays()
+    # Keep a 3D copy for optional visualization before flattening is reused.
+    visualize_images: np.ndarray = train_images_raw.reshape(-1, 28, 28)
+
     logger.info(
         'Loaded EMNIST datasets (training: %d images, shape=%s, dtype=%s; '
         'test: %d images, shape=%s, dtype=%s)',
-        train_size,
-        train_images.shape,
-        train_images.dtype,
-        test_size,
-        test_images.shape,
-        test_images.dtype,
+        len(train_images_raw),
+        visualize_images.shape,
+        visualize_images.dtype,
+        len(test_images_raw),
+        test_images_raw.reshape(-1, 28, 28).shape,
+        test_images_raw.dtype,
     )
 
     # Visualize the EMNIST dataset if visualize is True
     visualize_mnist(
-        train_images=train_images,
+        train_images=visualize_images,
         train_labels=train_labels,
         visualize=visualize,
     )
 
+    if seed is not None:
+        np.random.seed(seed)
     network: MNISTNeuralNetwork = MNISTNeuralNetwork()
-    rng: np.random.Generator = np.random.default_rng()
-    train_images = prepared_train_images
-    test_images = prepared_test_images
-    # Softened one-hot targets (label smoothing ε=0.05) for the 47 classes
-    label_smoothing: float = 0.05
-    class_targets: np.ndarray = np.eye(47, dtype=np.float64)
-    class_targets = class_targets * (1.0 - label_smoothing) + (
-        label_smoothing / 47.0
+    rng: np.random.Generator = (
+        np.random.default_rng(seed)
+        if seed is not None
+        else np.random.default_rng()
     )
+    train_images: np.ndarray = train_images_raw
+    test_images: np.ndarray = test_images_raw
+    train_size: int = len(train_images)
+    test_size: int = len(test_images)
+    # Softened one-hot targets for the 47 classes when label_smoothing > 0
+    class_targets: np.ndarray = np.eye(47, dtype=np.float64)
+    if label_smoothing > 0.0:
+        class_targets = class_targets * (1.0 - label_smoothing) + (
+            label_smoothing / 47.0
+        )
     # Train for the specified number of epochs
     training_started_at: float = perf_counter()
     for epoch in range(epochs):
@@ -241,6 +275,22 @@ def train_mnist(
             perf_counter() - epoch_started_at,
         )
 
+    train_correct: int = 0
+    for start in range(0, train_size, batch_size):
+        end: int = start + batch_size
+        train_batch_images: np.ndarray = _normalize_images(
+            train_images[start:end]
+        )
+        train_predictions: np.ndarray = network.predict(train_batch_images)
+        train_correct += int(
+            np.count_nonzero(train_predictions == train_labels[start:end])
+        )
+    train_accuracy: float = train_correct / train_size
+    logger.info(
+        'Clean training accuracy: %.2f%%',
+        train_accuracy * 100,
+    )
+
     logger.info(
         'EMNIST training completed in %.2fs',
         perf_counter() - training_started_at,
@@ -248,4 +298,4 @@ def train_mnist(
     return network
 
 
-__all__ = ['train_mnist']
+__all__ = ['load_emnist_arrays', 'train_mnist']
