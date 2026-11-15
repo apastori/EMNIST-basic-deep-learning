@@ -70,5 +70,3 @@ Thumbs.db
 *.sqlite3
 /log/*
 !/log/.gitkeep
-/models/*
-!/models/.gitkeep
