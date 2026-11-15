@@ -48,7 +48,7 @@ All of the commands below run `python -m mnistnn`, which calls `train_ensemble()
 - pixel values scaled to `[-0.5, 0.5]`
 - sample plots enabled for the first member trained in a session (`visualize=True`)
 
-Weights are saved under `models/member_0.npz` … `models/member_4.npz`. If a weight file already exists, that member is skipped so a stopped run can resume. When all five files are present, the same command only re-evaluates the ensemble (including one-pixel shift averaging).
+Weights are saved under `models/member_1.npz` … `models/member_5.npz`. If a weight file already exists, that member is skipped so a stopped run can resume. When all five files are present, the same command only re-evaluates the ensemble (including one-pixel shift averaging).
 
 Training progress is written to `log/mnist-training.log`.
 

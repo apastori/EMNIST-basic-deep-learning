@@ -31,9 +31,9 @@ SHIFT_VIEWS: tuple[tuple[int, int], ...] = (
 )
 
 
-def _member_weight_path(member_index: int) -> Path:
-    """Return the weight-file path for one ensemble member."""
-    return Path(MODELS_DIR, f'member_{member_index}.npz')
+def _member_weight_path(member_number: int) -> Path:
+    """Return the weight-file path for one ensemble member (1-based)."""
+    return Path(MODELS_DIR, f'member_{member_number}.npz')
 
 
 def _class_char(label: int) -> str:
@@ -124,7 +124,7 @@ def evaluate_ensemble(
         )
         logger.info(
             'Member %d accuracy: %.2f%% (%s)',
-            index,
+            index + 1,
             member_accuracy * 100,
             weight_path.name,
         )
@@ -198,22 +198,23 @@ def train_ensemble(
     weight_paths: list[Path] = []
     trained_in_session: bool = False
 
-    for member_index in range(members):
-        weight_path: Path = _member_weight_path(member_index)
+    for member_number in range(1, members + 1):
+        weight_path: Path = _member_weight_path(member_number)
         weight_paths.append(weight_path)
         if weight_path.exists():
             logger.info(
                 'Skipping member %d; weights already exist at %s',
-                member_index,
+                member_number,
                 weight_path,
             )
             continue
 
-        member_seed: int = base_seed + member_index
+        # Keep seeds aligned with the original 0-based training order.
+        member_seed: int = base_seed + (member_number - 1)
         show_plots: bool = visualize and not trained_in_session
         logger.info(
             'Training ensemble member %d/%d with seed=%d',
-            member_index + 1,
+            member_number,
             members,
             member_seed,
         )
@@ -224,7 +225,7 @@ def train_ensemble(
         )
         network.save_weights(weight_path)
         trained_in_session = True
-        logger.info('Saved member %d weights to %s', member_index, weight_path)
+        logger.info('Saved member %d weights to %s', member_number, weight_path)
 
     return evaluate_ensemble(weight_paths)
 
